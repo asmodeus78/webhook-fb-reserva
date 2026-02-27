@@ -29,6 +29,43 @@ app.post('/', (req, res) => {
   console.log(`\n\nWebhook received ${timestamp}\n`);
   console.log(JSON.stringify(req.body, null, 2));
   res.status(200).end();
+
+  const body = req.body;
+  if (body.object === 'whatsapp_business_account'){
+    if (body.entry && body.entry[0].changes && body.entry[0].changes[0].value.messages) {
+      
+      const message = body.entry[0].changes[0].value.messages[0];
+      const from = message.from; // Numero di telefono del cliente
+
+      // Gestione del click sui bottoni (tipo 'interactive')
+      if (message.type === 'interactive' && message.interactive.type === 'button_reply') {
+        const buttonId = message.interactive.button_reply.id;
+        const buttonText = message.interactive.button_reply.title;
+
+        console.log(`L'utente ${from} ha cliccato: ${buttonText} (ID: ${buttonId})`);
+
+        // Logica per aggiornare il database
+        if (buttonId === 'tuo_id_ok') {
+          console.log("Stato: Confermato. Eseguo query UPDATE...");
+          // queryDatabase('UPDATE appuntamenti SET stato = "confermato" WHERE telefono = ?', [from]);
+        } else if (buttonId === 'tuo_id_annulla') {
+          console.log("Stato: Annullato. Eseguo query UPDATE...");
+          // queryDatabase('UPDATE appuntamenti SET stato = "annullato" WHERE telefono = ?', [from]);
+        }
+
+      }
+    }
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+    res.sendStatus(404);
+  }
+  
+
+
+
+
+
+  
 });
 
 // Start the server

@@ -31,6 +31,8 @@ app.post('/', (req, res) => {
   //res.status(200).end();
 
   const body = req.body;
+  const oggetto = body.object;
+  console.log(`\n\nOggetto: ${oggetto}`);
   if (body.object === 'whatsapp_business_account'){
     if (body.entry && body.entry[0].changes && body.entry[0].changes[0].value.messages) {
       

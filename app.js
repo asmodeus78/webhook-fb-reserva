@@ -40,8 +40,9 @@ app.post('/', (req, res) => {
       const from = message.from; // Numero di telefono del cliente
       const tipo = message.type;
 
-      console.log(`Numero del cliente:${from}\n`);
-      console.log(`Tipo messaggio:${tipo}\n`);
+      console.log(`Numero del cliente: ${from}\n`);
+      console.log(`Tipo messaggio: ${tipo}\n`);
+      console.log(`Testo: ${message}\n`);
 
       // Gestione del click sui bottoni (tipo 'interactive')
       if (message.type === 'interactive' && message.interactive.type === 'button_reply') {

@@ -53,8 +53,8 @@ app.post('/', (req, res) => {
 
       // Gestione del click sui bottoni (tipo 'interactive')
       if (message.type === 'button' ) { //&& message.interactive.type === 'button_reply'
-        const buttonId = message.interactive.button_reply.id;
-        const buttonText = message.interactive.button_reply.title;
+        const buttonId = message.button.payload;
+        const buttonText = message.button.text;
 
         console.log(`L'utente ${from} ha cliccato: ${buttonText} (ID: ${buttonId})`);
 

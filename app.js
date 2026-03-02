@@ -40,7 +40,11 @@ app.post('/', (req, res) => {
       const from = message.from; // Numero di telefono del cliente
       const tipo = message.type;
 
-      const userText = message.text.body.toLowerCase().trim();
+      console.log("Messaggio ricevuto:", JSON.stringify(message, null, 2));
+
+
+      const userText = message?.text?.body?.toLowerCase().trim() || "";
+      
       
 
       console.log(`Numero del cliente: ${from}\n`);

@@ -53,8 +53,8 @@ app.post('/', (req, res) => {
 
       // Gestione del click sui bottoni (tipo 'interactive')
       if (message.type === 'button' ) { //&& message.interactive.type === 'button_reply'
-        const buttonId = message.button[0].payload;
-        const buttonText = message.button[0].text;
+        const buttonId = message.button.payload;
+        const buttonText = message.button.text;
 
         const parts = buttonId.split('_'); 
         const id = parts[1];    // "1234"

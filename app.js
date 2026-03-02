@@ -52,7 +52,7 @@ app.post('/', (req, res) => {
       console.log(`L'utente ${from} ha scritto: ${userText}`);
 
       // Gestione del click sui bottoni (tipo 'interactive')
-      if (message.type === 'interactive' && message.interactive.type === 'button_reply') {
+      if (message.type === 'button' ) { //&& message.interactive.type === 'button_reply'
         const buttonId = message.interactive.button_reply.id;
         const buttonText = message.interactive.button_reply.title;
 

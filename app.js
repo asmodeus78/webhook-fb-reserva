@@ -56,7 +56,11 @@ app.post('/', (req, res) => {
         const buttonId = message.button.payload;
         const buttonText = message.button.text;
 
-        console.log(`L'utente ${from} ha cliccato: ${buttonText} (ID: ${buttonId})`);
+        const parts = payload.split('_'); 
+        const id = parts[1];    // "1234"
+        const stato = parts[2]; // "OK"
+
+        console.log(`L'utente ${from} ha cliccato: ${stato} (ID: ${id})`);
 
         // Logica per aggiornare il database
         if (buttonId === 'tuo_id_ok') {

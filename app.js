@@ -62,14 +62,18 @@ app.post('/', (req, res) => {
 
         console.log(`L'utente ${from} ha cliccato: ${stato} (ID: ${id})`);
 
-        // Logica per aggiornare il database
-        if (buttonId === 'tuo_id_ok') {
-          console.log("Stato: Confermato. Eseguo query UPDATE...");
-          // queryDatabase('UPDATE appuntamenti SET stato = "confermato" WHERE telefono = ?', [from]);
-        } else if (buttonId === 'tuo_id_annulla') {
-          console.log("Stato: Annullato. Eseguo query UPDATE...");
-          // queryDatabase('UPDATE appuntamenti SET stato = "annullato" WHERE telefono = ?', [from]);
-        }
+        // Chiamata asincrona
+        axios.post('https://reserva-app.it/SW/webhook/incoming.php', {
+            id_appuntamento: id,
+            telefono: from,
+            azione: stato
+        })
+        .then(response => {
+            console.log("Risposta server remoto:", response.data);
+        })
+        .catch(error => {
+            console.error("Errore chiamata remota:", error.message);
+        });
 
       }
     }

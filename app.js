@@ -19,7 +19,7 @@ const sendAutoReply = async (to) => {
   try {
     await axios({
       method: "POST",
-      url: `https://graph.facebook.com/v20.0/${phoneId}/messages`,
+      url: `https://graph.facebook.com/${phoneId}/messages`,
       data: {
         messaging_product: "whatsapp",
         to: to,

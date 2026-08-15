@@ -47,75 +47,84 @@ app.get('/', (req, res) => {
 });
 
 // Route for POST requests
+// Route for POST requests
 app.post('/', (req, res) => {
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-  console.log(`\n\nWebhook received ${timestamp}\n`);
-  //console.log(JSON.stringify(req.body, null, 2));
-  //res.status(200).end();
-
   const body = req.body;
-  const oggetto = body.object;
-  console.log(`\n\nOggetto: ${oggetto}`);
-  if (body.object === 'whatsapp_business_account'){
-    if (body.entry && body.entry[0].changes && body.entry[0].changes[0].value.messages) {
-      
-      const message = body.entry[0].changes[0].value.messages[0];
-      const from = message.from; // Numero di telefono del cliente
-      const tipo = message.type;
 
-      console.log("Messaggio ricevuto:", JSON.stringify(message, null, 2));
+  if (body.object === 'whatsapp_business_account') {
+    
+    // Verifica che la struttura dati sia quella corretta di Meta
+    if (body.entry && body.entry[0].changes && body.entry[0].changes[0].value) {
+      const value = body.entry[0].changes[0].value;
 
+      // ----------------------------------------------------
+      // CASE 1: LOG DEGLI STATI DEI MESSAGGI (Sent, Delivered, Read, Failed)
+      // ----------------------------------------------------
+      if (value.statuses) {
+        const statusUpdate = value.statuses[0];
+        const messageId = statusUpdate.id;      // ID del messaggio a cui si riferisce lo stato
+        const status = statusUpdate.status;    // "sent", "delivered", "read", "failed"
+        const recipientId = statusUpdate.recipient_id; // Numero di telefono del destinatario
 
-      // 1. Invia SEMPRE la risposta automatica a chi scrive
-      sendAutoReply(from);
+        console.log(`\n--- [STATUS UPDATE] ${timestamp} ---`);
+        console.log(`Messaggio ID: ${messageId}`);
+        console.log(`Inviato a: ${recipientId}`);
+        console.log(`Stato attuale: ➡️ ${status.toUpperCase()} ⬅️`);
 
+        // Gestione specifica in caso di errore di invio (failed)
+        if (status === 'failed' && statusUpdate.errors) {
+          console.error(`⚠️ Errore di consegna per ID ${messageId}:`, JSON.stringify(statusUpdate.errors, null, 2));
+        }
+        console.log(`-------------------------------------\n`);
+      }
 
-      const userText = message?.text?.body?.toLowerCase().trim() || "";
-      
-      
+      // ----------------------------------------------------
+      // CASE 2: GESTIONE DEI MESSAGGI IN ENTRATA (Il tuo codice esistente)
+      // ----------------------------------------------------
+      if (value.messages) {
+        const message = value.messages[0];
+        const from = message.from; 
+        const tipo = message.type;
 
-      console.log(`Numero del cliente: ${from}\n`);
-      console.log(`Tipo messaggio: ${tipo}\n`);
-      console.log(`L'utente ${from} ha scritto: ${userText}`);
+        console.log(`\n--- [NUOVO MESSAGGIO] ${timestamp} ---`);
+        sendAutoReply(from);
 
-      // Gestione del click sui bottoni (tipo 'interactive')
-      if (message.type === 'button' ) { //&& message.interactive.type === 'button_reply'
-        const buttonId = message.button.payload;
-        const buttonText = message.button.text;
+        const userText = message?.text?.body?.toLowerCase().trim() || "";
+        console.log(`L'utente ${from} ha scritto: ${userText}`);
 
-        const parts = buttonId.split('_'); 
-        const id = parts[1];    // "1234"
-        const stato = parts[2]; // "OK"
+        // Gestione del click sui bottoni
+        if (message.type === 'button') {
+          const buttonId = message.button.payload;
+          const parts = buttonId.split('_'); 
+          const id = parts[1];    
+          const stato = parts[2]; 
 
-        console.log(`L'utente ${from} ha cliccato: ${stato} (ID: ${id})`);
+          console.log(`L'utente ${from} ha cliccato: ${stato} (ID: ${id})`);
 
-        // Chiamata asincrona
-        axios.post('https://reserva-app.it/SW/webhook/incoming.php', {
-            id_appuntamento: id,
-            telefono: from,
-            azione: stato
-        })
-        .then(response => {
-            console.log("Risposta server remoto:", response.data);
-        })
-        .catch(error => {
-            console.error("Errore chiamata remota:", error.message);
-        });
-
+          axios.post('https://reserva-app.it/SW/webhook/incoming.php', {
+              id_appuntamento: id,
+              telefono: from,
+              azione: stato
+          })
+          .then(response => {
+              console.log("Risposta server remoto:", response.data);
+          })
+          .catch(error => {
+              console.error("Errore chiamata remota:", error.message);
+          });
+        }
+        console.log(`--------------------------------------\n`);
       }
     }
+
+    // Rispondi sempre 200 OK a Meta il prima possibile per evitare re-invii
     res.status(200).send('EVENT_RECEIVED');
   } else {
     res.sendStatus(404);
   }
-  
-
-
-
-
-
-  
 });
+
 
 // Start the server
 app.listen(port, () => {

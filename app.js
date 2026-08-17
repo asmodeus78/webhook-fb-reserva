@@ -86,7 +86,7 @@ app.post('/', (req, res) => {
           targetUrl = 'https://reserva-app.it';
           console.log("🎯 Destinazione: Canale RESERVA");
         } else if (myPhoneId === ID_NUMERO_ANONYMES) {
-          targetUrl = 'https://anonymes-app.it'; // Cambia con l'URL reale di Anonymes
+          targetUrl = 'https://backend.anonymes.it/WEBHOOK/incoming.php'; // Cambia con l'URL reale di Anonymes
           console.log("🎯 Destinazione: Canale ANONYMES");
         } else {
           console.log("⚠️ Avviso: ID numero non riconosciuto nelle configurazioni.");

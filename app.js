@@ -75,8 +75,8 @@ app.post('/', (req, res) => {
         console.log(`Inviato dal nostro Phone ID: ${myPhoneId} verso il cliente: ${recipientId}`);
       
         // Configura qui gli ID reali forniti da Meta per i tuoi due numeri
-        const ID_NUMERO_RESERVA = process.env.PHONE_NUMBER_ID_RESERVA || "803541822848311";
-        const ID_NUMERO_ANONYMES = process.env.PHONE_NUMBER_ID_ANONYMES || "IL_TUO_ID_ANONYMES";
+        const ID_NUMERO_RESERVA = process.env.PHONE_NUMBER_ID_RESERVA || "AAAA803541822848311";
+        const ID_NUMERO_ANONYMES = process.env.PHONE_NUMBER_ID_ANONYMES || "410052208856010";
       
         // Variabile per definire l'endpoint di destinazione
         let targetUrl = "";

@@ -12,14 +12,14 @@ app.use(express.json());
 const port = process.env.PORT || 3000;
 const verifyToken = process.env.VERIFY_TOKEN;
 const accessToken = process.env.WHATSAPP_TOKEN; 
-const phoneId = process.env.PHONE_NUMBER_ID; 
+//const phoneId = process.env.PHONE_NUMBER_ID; 
 
 // Funzione per inviare il messaggio di avviso
-const sendAutoReply = async (to) => {
+const sendAutoReply = async (to,myPhoneId) => {
   try {
     await axios({
       method: "POST",
-      url: `https://graph.facebook.com/${phoneId}/messages`,
+      url: `https://graph.facebook.com/${myPhoneId}/messages`,
       data: {
         messaging_product: "whatsapp",
         to: to,
@@ -75,7 +75,7 @@ app.post('/', (req, res) => {
         console.log(`Inviato dal nostro Phone ID: ${myPhoneId} verso il cliente: ${recipientId}`);
       
         // Configura qui gli ID reali forniti da Meta per i tuoi due numeri
-        const ID_NUMERO_RESERVA = process.env.PHONE_NUMBER_ID_RESERVA || "IL_TUO_ID_RESERVA";
+        const ID_NUMERO_RESERVA = process.env.PHONE_NUMBER_ID_RESERVA || "803541822848311";
         const ID_NUMERO_ANONYMES = process.env.PHONE_NUMBER_ID_ANONYMES || "IL_TUO_ID_ANONYMES";
       
         // Variabile per definire l'endpoint di destinazione
@@ -124,7 +124,8 @@ app.post('/', (req, res) => {
         const tipo = message.type;
 
         console.log(`\n--- [NUOVO MESSAGGIO] ${timestamp} ---`);
-        sendAutoReply(from);
+        const myPhoneId = body.entry[0].changes[0].value.metadata.phone_number_id;
+        sendAutoReply(from,myPhoneId);
 
         const userText = message?.text?.body?.toLowerCase().trim() || "";
         console.log(`L'utente ${from} ha scritto: ${userText}`);

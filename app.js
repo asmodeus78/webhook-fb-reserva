@@ -93,13 +93,25 @@ app.post('/', (req, res) => {
         }
       
         // Eseguiamo la chiamata Axios solo se abbiamo trovato un URL valido
+        // 1. Assicurati di importare il modulo nativo 'https' in cima al tuo file
+        const https = require('https');
+        
+        // 2. Modifica il tuo blocco condizionale in questo modo:
         if (targetUrl) {
+          // Crea un agente HTTPS che accetta anche certificati non validi o scaduti
+          const agent = new https.Agent({  
+            rejectUnauthorized: false
+          });
+        
           axios.post(targetUrl, {
               comando: "status_update",
               messageId: messageId,
               status: status,
               telefono: recipientId,
-              origine: myPhoneId // Opzionale: passi anche l'ID per sicurezza al tuo script
+              origine: myPhoneId 
+          }, { 
+              // Passa l'agente come configurazione della richiesta Axios
+              httpsAgent: agent 
           })
           .then(response => {
               console.log(`[Stato Notificato] Risposta da ${targetUrl}:`, response.data);
@@ -108,6 +120,7 @@ app.post('/', (req, res) => {
               console.error(`[Errore Notifica] Impossibile inviare a ${targetUrl}:`, error.message);
           });
         }
+
       
         if (status === 'failed' && statusUpdate.errors) {
           console.error(`⚠️ Errore di consegna per ID ${messageId}:`, JSON.stringify(statusUpdate.errors, null, 2));

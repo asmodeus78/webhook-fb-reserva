@@ -103,14 +103,15 @@ app.post('/', (req, res) => {
             rejectUnauthorized: false
           });
         
-          axios.post(targetUrl, {
-              comando: "status_update",
-              messageId: messageId,
-              status: status,
-              telefono: recipientId,
-              origine: myPhoneId 
-          }, { 
-              // Passa l'agente come configurazione della richiesta Axios
+          // Trasforma l'oggetto in un formato URL-encoded compatibile con il $_POST classico di PHP
+          const params = new URLSearchParams();
+          params.append('comando', 'status_update');
+          params.append('messageId', messageId);
+          params.append('status', status);
+          params.append('telefono', recipientId);
+          params.append('origine', myPhoneId);
+        
+          axios.post(targetUrl, params, { 
               httpsAgent: agent 
           })
           .then(response => {

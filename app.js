@@ -95,6 +95,7 @@ app.post('/', (req, res) => {
         // Eseguiamo la chiamata Axios solo se abbiamo trovato un URL valido
         if (targetUrl) {
           axios.post(targetUrl, {
+              comando: "status_update",
               messageId: messageId,
               status: status,
               telefono: recipientId,

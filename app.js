@@ -63,21 +63,57 @@ app.post('/', (req, res) => {
       // ----------------------------------------------------
       if (value.statuses) {
         const statusUpdate = value.statuses[0];
-        const messageId = statusUpdate.id;      // ID del messaggio a cui si riferisce lo stato
-        const status = statusUpdate.status;    // "sent", "delivered", "read", "failed"
-        const recipientId = statusUpdate.recipient_id; // Numero di telefono del destinatario
-
+        const messageId = statusUpdate.id;      
+        const status = statusUpdate.status;    
+        const recipientId = statusUpdate.recipient_id; // Numero del cliente che riceve il messaggio
+      
+        // Recuperiamo l'ID del NOSTRO numero di telefono che ha inviato il messaggio
+        const myPhoneId = body.entry[0].changes[0].value.metadata.phone_number_id;
+      
         console.log(`\n--- [STATUS UPDATE] ${timestamp} ---`);
-        console.log(`Messaggio ID: ${messageId}`);
-        console.log(`Inviato a: ${recipientId}`);
-        console.log(`Stato attuale: ➡️ ${status.toUpperCase()} ⬅️`);
-
-        // Gestione specifica in caso di errore di invio (failed)
+        console.log(`Messaggio ID: ${messageId} | Stato: ${status.toUpperCase()}`);
+        console.log(`Inviato dal nostro Phone ID: ${myPhoneId} verso il cliente: ${recipientId}`);
+      
+        // Configura qui gli ID reali forniti da Meta per i tuoi due numeri
+        const ID_NUMERO_RESERVA = process.env.PHONE_NUMBER_ID_RESERVA || "IL_TUO_ID_RESERVA";
+        const ID_NUMERO_ANONYMES = process.env.PHONE_NUMBER_ID_ANONYMES || "IL_TUO_ID_ANONYMES";
+      
+        // Variabile per definire l'endpoint di destinazione
+        let targetUrl = "";
+      
+        // Scegliamo l'URL in base a quale dei nostri numeri ha scatenato l'evento
+        if (myPhoneId === ID_NUMERO_RESERVA) {
+          targetUrl = 'https://reserva-app.it';
+          console.log("🎯 Destinazione: Canale RESERVA");
+        } else if (myPhoneId === ID_NUMERO_ANONYMES) {
+          targetUrl = 'https://anonymes-app.it'; // Cambia con l'URL reale di Anonymes
+          console.log("🎯 Destinazione: Canale ANONYMES");
+        } else {
+          console.log("⚠️ Avviso: ID numero non riconosciuto nelle configurazioni.");
+        }
+      
+        // Eseguiamo la chiamata Axios solo se abbiamo trovato un URL valido
+        if (targetUrl) {
+          axios.post(targetUrl, {
+              messageId: messageId,
+              status: status,
+              telefono: recipientId,
+              origine: myPhoneId // Opzionale: passi anche l'ID per sicurezza al tuo script
+          })
+          .then(response => {
+              console.log(`[Stato Notificato] Risposta da ${targetUrl}:`, response.data);
+          })
+          .catch(error => {
+              console.error(`[Errore Notifica] Impossibile inviare a ${targetUrl}:`, error.message);
+          });
+        }
+      
         if (status === 'failed' && statusUpdate.errors) {
           console.error(`⚠️ Errore di consegna per ID ${messageId}:`, JSON.stringify(statusUpdate.errors, null, 2));
         }
         console.log(`-------------------------------------\n`);
       }
+
 
       // ----------------------------------------------------
       // CASE 2: GESTIONE DEI MESSAGGI IN ENTRATA (Il tuo codice esistente)
